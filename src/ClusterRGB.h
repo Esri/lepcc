@@ -25,6 +25,7 @@ Contributors:  Thomas Maurer
 #define CLUSTERRGB_H
 
 #include <vector>
+#include <string>
 #include <unordered_map>
 #include "BitMask.h"
 
@@ -155,7 +156,7 @@ namespace lepcc
 
       TopHeader() : version(1), checkSum(0)
       {
-        std::string fk = "ClusterRGB";
+        std::string fk ("ClusterRGB");
         memcpy(&fileKey[0], fk.c_str(), fk.length());
       }
 

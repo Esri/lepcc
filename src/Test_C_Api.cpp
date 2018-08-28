@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
   }
 
   FILE* fp = 0;
-  fopen_s(&fp, fn.c_str(), "rb");
+  fp = fopen( fn.c_str(), "rb");
   if (!fp)
   {
     printf("Error in main(): Cannot read from file %s.\n", fn.c_str());  return 0;
@@ -82,13 +82,13 @@ int main(int argc, char* argv[])
   FILE* fpOut = 0;
   if (mode == 1 || mode == 2)    //  || mode == 0)
   {
-    fopen_s(&fpOut, fnOut.c_str(), "wb");
+    fpOut = fopen(fnOut.c_str(), "wb");
     if (!fpOut)
     {
       printf("Error in main(): Cannot write to file %s.\n", fnOut.c_str());  return 0;
     }
     fclose(fpOut);
-    fopen_s(&fpOut, fnOut.c_str(), "ab");    // open again in append mode
+    fpOut = fopen(fnOut.c_str(), "ab");    // open again in append mode
   }
 
   double totalNumPoints = 0, totalNumTiles = 0;
@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
   vector<uint32> orderVec;
 
   high_resolution_clock::time_point t0 = high_resolution_clock::now();
-  
+
   if (mode != 2)    // simulate, encode, or test
   {
     bool done = false;
@@ -230,19 +230,19 @@ int main(int argc, char* argv[])
 
         // encode
         if (ptVec.size() > 0)
-          if (hr = lepcc_encodeXYZ(ctx, &pByte, nBytesXYZ))
+          if ((hr = lepcc_encodeXYZ(ctx, &pByte, nBytesXYZ)))
           {
             printf("Error in main(): lepcc_encodeXYZ(...) failed.\n");  return 0;
           }
 
         if (rgbVec.size() > 0)
-          if (hr = lepcc_encodeRGB(ctx, &pByte, nBytesRGB))
+          if ((hr = lepcc_encodeRGB(ctx, &pByte, nBytesRGB)))
           {
             printf("Error in main(): lepcc_encodeRGB(...) failed.\n");  return 0;
           }
 
         if (intensityVec.size() > 0)
-          if (hr = lepcc_encodeIntensity(ctx, &pByte, nBytesIntensity, &intensityVec[0], nPts))
+          if ((hr = lepcc_encodeIntensity(ctx, &pByte, nBytesIntensity, &intensityVec[0], nPts)))
           {
             printf("Error in main(): lepcc_encodeIntensity(...) failed.\n");  return 0;
           }
@@ -260,7 +260,7 @@ int main(int argc, char* argv[])
           if (!lepcc_getPointCount(ctxDec, pByte, nBytesXYZ, &nPts2) && nPts2 > 0)
           {
             decPtVec.resize(nPts2);
-            if (hr = lepcc_decodeXYZ(ctxDec, &pByte, nBytesXYZ, &nPts2, (double*)(&decPtVec[0])))
+            if ((hr = lepcc_decodeXYZ(ctxDec, &pByte, nBytesXYZ, &nPts2, (double*)(&decPtVec[0]))))
             {
               printf("Error in main(): lepcc_decodeXYZ(...) failed.\n");  return 0;
             }
@@ -285,7 +285,7 @@ int main(int argc, char* argv[])
           if (!lepcc_getRGBCount(ctxDec, pByte, nBytesRGB, &nPts2) && nPts2 > 0)
           {
             decRgbVec.resize(nPts2);
-            if (hr = lepcc_decodeRGB(ctxDec, &pByte, nBytesRGB, &nPts2, (Byte*)(&decRgbVec[0])))
+            if ((hr = lepcc_decodeRGB(ctxDec, &pByte, nBytesRGB, &nPts2, (Byte*)(&decRgbVec[0]))))
             {
               printf("Error in main(): lepcc_decodeRGB(...) failed.\n");  return 0;
             }
@@ -312,7 +312,7 @@ int main(int argc, char* argv[])
           if (!lepcc_getIntensityCount(ctxDec, pByte, nBytesIntensity, &nPts2) && nPts2 > 0)
           {
             decIntensityVec.resize(nPts2);
-            if (hr = lepcc_decodeIntensity(ctxDec, &pByte, nBytesIntensity, &nPts2, &decIntensityVec[0]))
+            if ((hr = lepcc_decodeIntensity(ctxDec, &pByte, nBytesIntensity, &nPts2, &decIntensityVec[0])))
             {
               printf("Error in main(): lepcc_decodeIntensity(...) failed.\n");  return 0;
             }
@@ -347,7 +347,7 @@ int main(int argc, char* argv[])
       if (origHasXYZ)
       {
         nBytes = ReadBlobSize(ctxDec, fp);
-        
+
         if (nBytes == 0)
         {
           done = true;
@@ -471,7 +471,7 @@ int main(int argc, char* argv[])
 
 // -------------------------------------------------------------------------- ;
 
-// only for this little test program; 
+// only for this little test program;
 // a real app should keep track of the order compressed blobs are written to the stream, and their sizes;
 
 int ReadBlobSize(lepcc_ContextHdl ctx, FILE* fp)
