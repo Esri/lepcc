@@ -23,6 +23,7 @@ Contributors:  Thomas Maurer
 
 #include <algorithm>
 #include <climits>
+#include <string>
 #include "LEPCC.h"
 #include "BitStuffer2.h"
 #include "Common.h"
@@ -168,7 +169,7 @@ ErrCode LEPCC::GetBlobSize(const Byte* pByte, int64 bufferSize, uint32& blobSize
 
 // -------------------------------------------------------------------------- ;
 
-ErrCode LEPCC::GetNumPointsFromHeader(const Byte* pByte, int64 bufferSize, uint32& nPts) 
+ErrCode LEPCC::GetNumPointsFromHeader(const Byte* pByte, int64 bufferSize, uint32& nPts)
 {
   nPts = 0;
 
@@ -184,7 +185,7 @@ ErrCode LEPCC::GetNumPointsFromHeader(const Byte* pByte, int64 bufferSize, uint3
 
 // -------------------------------------------------------------------------- ;
 
-ErrCode LEPCC::GetExtent3DFromHeader(const Byte* pByte, int64 bufferSize, Extent3D& ext) 
+ErrCode LEPCC::GetExtent3DFromHeader(const Byte* pByte, int64 bufferSize, Extent3D& ext)
 {
   ext = Extent3D();
 
@@ -300,7 +301,7 @@ void LEPCC::Clear()
 // -------------------------------------------------------------------------- ;
 // -------------------------------------------------------------------------- ;
 
-int LEPCC::HeaderSize() 
+int LEPCC::HeaderSize()
 {
   return (int)(sizeof(TopHeader) + sizeof(Header1));
 }
@@ -580,7 +581,7 @@ bool LEPCC::Decode_CutInSegments(const Byte** ppByte, std::vector<uint32>& dataV
 
 // -------------------------------------------------------------------------- ;
 
-ErrCode LEPCC::ReadHeaders(const Byte* pByte, int64 bufferSize, TopHeader& topHd, Header1& hd1) 
+ErrCode LEPCC::ReadHeaders(const Byte* pByte, int64 bufferSize, TopHeader& topHd, Header1& hd1)
 {
   if (!pByte)
     return ErrCode::WrongParam;
