@@ -23,6 +23,7 @@ Contributors:  Thomas Maurer
 
 #include <algorithm>
 #include <cstring>
+#include <climits>
 #include "Intensity.h"
 #include "BitMask.h"
 #include "BitStuffer2.h"

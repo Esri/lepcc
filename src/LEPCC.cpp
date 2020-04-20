@@ -100,7 +100,7 @@ ErrCode LEPCC::Encode(Byte** ppByte, int64 bufferSize) const
   Byte* ptrStart = ptr;    // keep for later
 
   TopHeader topHd;
-  memcpy(ptr, &topHd, sizeof(topHd));
+  std::memcpy(ptr, &topHd, sizeof(topHd));
   ptr += sizeof(topHd);
 
   Header1 hd1;
@@ -109,7 +109,7 @@ ErrCode LEPCC::Encode(Byte** ppByte, int64 bufferSize) const
   hd1.maxError3D = m_maxError;
   hd1.numPoints = (uint32)m_zVec.size();
 
-  memcpy(ptr, &hd1, sizeof(hd1));
+  std::memcpy(ptr, &hd1, sizeof(hd1));
   ptr += sizeof(hd1);
 
   *ppByte = ptr;
@@ -125,11 +125,11 @@ ErrCode LEPCC::Encode(Byte** ppByte, int64 bufferSize) const
 
   // add blob size
   int64 numBytes = (int64)(*ppByte - ptrStart);
-  memcpy(ptrStart + sizeof(topHd), &numBytes, sizeof(numBytes));    // overide with the real num bytes
+  std::memcpy(ptrStart + sizeof(topHd), &numBytes, sizeof(numBytes));    // overide with the real num bytes
 
   // add check sum
   topHd.checkSum = Common::ComputeChecksumFletcher32(ptrStart + sizeof(topHd), (numBytes - sizeof(topHd)));
-  memcpy(ptrStart, &topHd, sizeof(topHd));
+  std::memcpy(ptrStart, &topHd, sizeof(topHd));
 
   if (numBytes != m_numBytesNeeded)
     return ErrCode::Failed;
@@ -157,7 +157,7 @@ ErrCode LEPCC::GetBlobSize(const Byte* pByte, int64 bufferSize, uint32& blobSize
   // get blob size
   pByte += sizeof(refHd);
   int64 nBytes = 0;
-  memcpy(&nBytes, pByte, sizeof(nBytes));
+  std::memcpy(&nBytes, pByte, sizeof(nBytes));
 
   if (nBytes < bufferSize || nBytes > UINT_MAX)
     return ErrCode::Failed;
@@ -229,7 +229,7 @@ ErrCode LEPCC::Decode(const Byte** ppByte, int64 bufferSize, uint32& nPtsInOut, 
   if (checkSum != topHd.checkSum)
     return ErrCode::WrongCheckSum;
 
-  int64 numBytes = hd1.blobSize;
+  //int64 numBytes = hd1.blobSize;
   m_extent3D = hd1.extent3D;
   m_maxError = hd1.maxError3D;
 
@@ -592,13 +592,13 @@ ErrCode LEPCC::ReadHeaders(const Byte* pByte, int64 bufferSize, TopHeader& topHd
   if (0 != memcmp(pByte, refHd.fileKey, refHd.FileKeyLength()))    // file key
     return ErrCode::NotLepcc;
 
-  memcpy(&topHd, pByte, sizeof(topHd));
+  std::memcpy(&topHd, pByte, sizeof(topHd));
   pByte += sizeof(topHd);
 
   if (topHd.version > kCurrVersion)    // this reader is outdated
     return ErrCode::WrongVersion;
 
-  memcpy(&hd1, pByte, sizeof(hd1));
+  std::memcpy(&hd1, pByte, sizeof(hd1));
   return ErrCode::Ok;
 }
 

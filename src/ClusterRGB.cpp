@@ -23,6 +23,7 @@ Contributors:  Thomas Maurer
 
 #include <algorithm>
 #include <cstring>
+#include <climits>
 #include "ClusterRGB.h"
 #include "Common.h"
 #include "utl_const_array.h"
