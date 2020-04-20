@@ -23,7 +23,6 @@ Contributors:  Thomas Maurer
 
 #include <algorithm>
 #include <climits>
-#include <string>
 #include "LEPCC.h"
 #include "BitStuffer2.h"
 #include "Common.h"
@@ -169,7 +168,7 @@ ErrCode LEPCC::GetBlobSize(const Byte* pByte, int64 bufferSize, uint32& blobSize
 
 // -------------------------------------------------------------------------- ;
 
-ErrCode LEPCC::GetNumPointsFromHeader(const Byte* pByte, int64 bufferSize, uint32& nPts)
+ErrCode LEPCC::GetNumPointsFromHeader(const Byte* pByte, int64 bufferSize, uint32& nPts) 
 {
   nPts = 0;
 
@@ -185,7 +184,7 @@ ErrCode LEPCC::GetNumPointsFromHeader(const Byte* pByte, int64 bufferSize, uint3
 
 // -------------------------------------------------------------------------- ;
 
-ErrCode LEPCC::GetExtent3DFromHeader(const Byte* pByte, int64 bufferSize, Extent3D& ext)
+ErrCode LEPCC::GetExtent3DFromHeader(const Byte* pByte, int64 bufferSize, Extent3D& ext) 
 {
   ext = Extent3D();
 
@@ -301,7 +300,7 @@ void LEPCC::Clear()
 // -------------------------------------------------------------------------- ;
 // -------------------------------------------------------------------------- ;
 
-int LEPCC::HeaderSize()
+int LEPCC::HeaderSize() 
 {
   return (int)(sizeof(TopHeader) + sizeof(Header1));
 }
@@ -356,7 +355,7 @@ ErrCode LEPCC::Quantize(uint32 nPts, const Point3D* pts)
   int ny = (int)ny64;
   int nz = (int)nz64;
 
-  m_cell3DVec.resize(0);
+  m_cell3DVec.clear();
   m_cell3DVec.reserve(nPts);
 
   const_array<Point3D> pointArr(pts, nPts);    // safe wrapper
@@ -391,8 +390,8 @@ ErrCode LEPCC::ConvertToDeltaModel()
   // sort the points, top to bottom, left to right
   std::sort(m_cell3DVec.begin(), m_cell3DVec.end(), MyLessThanOp());
 
-  m_yDeltaVec.resize(0);
-  m_numPointsPerRowVec.resize(0);
+  m_yDeltaVec.clear();
+  m_numPointsPerRowVec.clear();
 
   uint32 nPtsPerRow = 0;
   int prevRow = 0;
@@ -418,10 +417,10 @@ ErrCode LEPCC::ConvertToDeltaModel()
   m_yDeltaVec.push_back((uint32)(yCurr - prevRow));
   m_numPointsPerRowVec.push_back(nPtsPerRow);
 
-  m_xDeltaVec.resize(0);
+  m_xDeltaVec.clear();
   m_xDeltaVec.reserve(numPoints);
 
-  m_zVec.resize(0);
+  m_zVec.clear();
   m_zVec.reserve(numPoints);
 
   int numOccupiedRows = (int)m_yDeltaVec.size();
@@ -452,7 +451,7 @@ ErrCode LEPCC::ConvertToDeltaModel()
 
 // -------------------------------------------------------------------------- ;
 
-int LEPCC::ComputeNumBytes_CutInSegments(const vector<uint32>& dataVec, int sectionSize) const
+int LEPCC::ComputeNumBytes_CutInSegments(const std::vector<uint32>& dataVec, int sectionSize) const
 {
   int numSections = (int)((dataVec.size() + (sectionSize - 1)) / sectionSize);
   int lenLastSection = (int)(dataVec.size() - (numSections - 1) * sectionSize);
@@ -460,7 +459,7 @@ int LEPCC::ComputeNumBytes_CutInSegments(const vector<uint32>& dataVec, int sect
   int nBytes = 0;
   uint32 totalMax = 0;
 
-  vector<uint32> sectionMinVec;
+  std::vector<uint32> sectionMinVec;
   sectionMinVec.reserve(numSections);
 
   BitStuffer2 bitStuffer2;
@@ -506,9 +505,9 @@ bool LEPCC::Encode_CutInSegments(Byte** ppByte, const std::vector<uint32>& dataV
   int lenLastSection = (int)(dataVec.size() - (numSections - 1) * sectionSize);
 
   // collect all mins, one for each section
-  vector<uint32> sectionMinVec;
+  std::vector<uint32> sectionMinVec;
   sectionMinVec.reserve(numSections);
-  vector<uint32>::const_iterator it, it0 = dataVec.begin();
+  std::vector<uint32>::const_iterator it, it0 = dataVec.begin();
 
   for (int i = 0; i < numSections; i++)
   {
@@ -525,7 +524,7 @@ bool LEPCC::Encode_CutInSegments(Byte** ppByte, const std::vector<uint32>& dataV
     return false;
 
   // now to the sections
-  vector<uint32> zeroBasedDataVec(sectionSize, 0);
+  std::vector<uint32> zeroBasedDataVec(sectionSize, 0);
 
   for (int i = 0; i < numSections; i++)
   {
@@ -552,10 +551,10 @@ bool LEPCC::Decode_CutInSegments(const Byte** ppByte, std::vector<uint32>& dataV
   if (!ppByte || !(*ppByte))
     return false;
 
-  dataVec.resize(0);
+  dataVec.clear();
 
   // decode the section mins
-  vector<uint32> sectionMinVec, zeroBasedDataVec;
+  std::vector<uint32> sectionMinVec, zeroBasedDataVec;
   BitStuffer2 bitStuffer2;
   if (!bitStuffer2.Decode(ppByte, sectionMinVec, 3))
     return false;
@@ -581,7 +580,7 @@ bool LEPCC::Decode_CutInSegments(const Byte** ppByte, std::vector<uint32>& dataV
 
 // -------------------------------------------------------------------------- ;
 
-ErrCode LEPCC::ReadHeaders(const Byte* pByte, int64 bufferSize, TopHeader& topHd, Header1& hd1)
+ErrCode LEPCC::ReadHeaders(const Byte* pByte, int64 bufferSize, TopHeader& topHd, Header1& hd1) 
 {
   if (!pByte)
     return ErrCode::WrongParam;

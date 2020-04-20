@@ -42,7 +42,7 @@ ErrCode FlagBytes::ComputeNumBytesNeededToEncode(uint32 nElem, const Byte* flagB
 
   // calc histo
   int numNonZeroBins = 0;
-  vector<int> histoVec;
+  std::vector<int> histoVec;
   ComputeHisto(nElem, flagBytes, histoVec, numNonZeroBins);
 
   // from histo, compute numBytesNeeded for Huffman
@@ -279,7 +279,7 @@ int FlagBytes::HeaderSize()
 // -------------------------------------------------------------------------- ;
 
 void FlagBytes::ComputeHisto(uint32 nElem, const Byte* flagBytes,
-  vector<int>& histoVec, int& numNonZeroBins) const
+  std::vector<int>& histoVec, int& numNonZeroBins) const
 {
   histoVec.resize(256);
   memset(&histoVec[0], 0, 256);

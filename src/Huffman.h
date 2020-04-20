@@ -43,6 +43,7 @@ namespace lepcc
     // histogram have to follow the Fibonacci sequence. Even then, for < 9,227,465 data values, 32 bit is
     // the max Huffman code length possible. 
 
+
     int64 ComputeNumBytesNeededToEncode(const std::vector<int>& histo);
 
     // dst buffer is already allocated. byte ptr is moved like a file pointer.
@@ -51,18 +52,21 @@ namespace lepcc
     // resize dataVec before call
     bool Decode(const Byte** ppByte, int64 bufferSize, std::vector<Byte>& dataVec);
 
-    void Clear();
-
-  private:
 
     bool ComputeCodes(const std::vector<int>& histo);    // input histogram, size < 2^15
+
     bool ComputeCompressedSize(const std::vector<int>& histo, int& numBytes, double& avgBpp) const;
+
+    // LUT of same size as histogram, each entry has length of Huffman bit code, and the bit code
+    const std::vector<std::pair<short, unsigned int> >& GetCodes() const  { return m_codeTable; }
+    bool SetCodes(const std::vector<std::pair<short, unsigned int> >& codeTable);
 
     bool WriteCodeTable(Byte** ppByte) const;
     bool ReadCodeTable(const Byte** ppByte, int lerc2Version = 3);
 
     bool BuildTreeFromCodes(int& numBitsLUT);
     bool DecodeOneValue(const unsigned int** ppSrc, int& bitPos, int numBitsLUT, int& value) const;
+    void Clear();
 
   private:
 
@@ -89,7 +93,7 @@ namespace lepcc
 
       bool operator < (const Node& other) const  { return weight < other.weight; }
 
-      bool TreeToLUT(unsigned short numBits, unsigned int bits, std::vector<std::pair<unsigned short, unsigned int> >& luTable) const
+      bool TreeToLUT(short numBits, unsigned int bits, std::vector<std::pair<short, unsigned int> >& luTable) const
       {
         if (child0)
         {
@@ -101,7 +105,7 @@ namespace lepcc
           }
         }
         else
-          luTable[value] = std::pair<unsigned short, unsigned int>(numBits, bits);
+          luTable[value] = std::pair<short, unsigned int>(numBits, bits);
 
         return true;
       }
@@ -125,17 +129,24 @@ namespace lepcc
       }
     };
 
+    struct MyLargerThanOp
+    {
+      inline bool operator() (const std::pair<int, int>& p0, const std::pair<int, int>& p1)
+      {
+        return p0.first > p1.first;
+      }
+    };
+
   private:
 
     size_t m_maxHistoSize;
-    std::vector<std::pair<unsigned short, unsigned int> > m_codeTable;
+    std::vector<std::pair<short, unsigned int> > m_codeTable;
     std::vector<std::pair<short, short> > m_decodeLUT;
     int m_maxNumBitsLUT;
     int m_numBitsToSkipInTree;
     Node* m_root;
 
-    static int GetIndexWrapAround(int i, int size)  { return i - (i < size ? 0 : size); }
-
+    int GetIndexWrapAround(int i, int size) const  { return i - (i < size ? 0 : size); }
     bool ComputeNumBytesCodeTable(int& numBytes) const;
     bool GetRange(int& i0, int& i1, int& maxCodeLength) const;
     bool BitStuffCodes(Byte** ppByte, int i0, int i1) const;
@@ -148,15 +159,13 @@ namespace lepcc
 
   inline bool Huffman::DecodeOneValue(const unsigned int** ppSrc, int& bitPos, int numBitsLUT, int& value) const
   {
-    if (!ppSrc || !(*ppSrc) || bitPos < 0 || bitPos >= 32)
+    if (!ppSrc || !(*ppSrc) || bitPos < 0 || bitPos > 32)
       return false;
 
     // first get the next (up to) 12 bits as a copy
     int valTmp = ((**ppSrc) << bitPos) >> (32 - numBitsLUT);
     if (32 - bitPos < numBitsLUT)
-    {
       valTmp |= (*(*ppSrc + 1)) >> (64 - bitPos - numBitsLUT);
-    }
 
     if (m_decodeLUT[valTmp].first >= 0)    // if there, move the correct number of bits and done
     {

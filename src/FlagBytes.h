@@ -37,7 +37,7 @@ namespace lepcc
   class FlagBytes
   {
   public:
-    FlagBytes() : m_numBytesNeeded(0), m_minValue(0)  {}
+    FlagBytes() : m_numBytesNeeded(0), m_minValue(0), m_compressionMethod(CompressionMethod::BitStuff){}
     virtual ~FlagBytes()  { Clear(); }
 
     ErrCode ComputeNumBytesNeededToEncode(uint32 nElem, const Byte* flagBytes, int64& nBytes);

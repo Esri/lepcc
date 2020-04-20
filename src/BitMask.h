@@ -64,7 +64,7 @@ namespace lepcc
     int Size() const                          { return (m_nCols * m_nRows + 7) >> 3; }
     const Byte* Bits() const                  { return m_pBits; }
     Byte* Bits()                              { return m_pBits; }
-    static Byte Bit(int k)                    { return (1 << 7) >> (k & 7); }
+    Byte Bit(int k) const                     { return (1 << 7) >> (k & 7); }
 
     int CountValidBits() const;
     int NextValidBit(int k) const;    // use with sparse masks; returns next valid bit incl k itself; returns -1 if there is none;

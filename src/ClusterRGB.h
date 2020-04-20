@@ -72,7 +72,7 @@ namespace lepcc
     {
       Byte r, g, b, a;
 
-      RGBA_t()  {}
+      RGBA_t() :r(0),g(0),b(0),a(0) {}
       RGBA_t(Byte r0, Byte g0, Byte b0, Byte a0 = 0) : r(r0), g(g0), b(b0), a(a0)  {}
 
       int DistRGB(RGBA_t v)

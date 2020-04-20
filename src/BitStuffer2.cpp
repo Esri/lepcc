@@ -24,19 +24,18 @@ Contributors:  Thomas Maurer
 #include <algorithm>
 #include "BitStuffer2.h"
 
-using namespace std;
 using namespace lepcc;
 
 // -------------------------------------------------------------------------- ;
 
 // if you change Encode(...) / Decode(...), don't forget to update ComputeNumBytesNeeded(...)
 
-bool BitStuffer2::EncodeSimple(Byte** ppByte, const vector<unsigned int>& dataVec) const
+bool BitStuffer2::EncodeSimple(Byte** ppByte, const std::vector<unsigned int>& dataVec) const
 {
   if (!ppByte || dataVec.empty())
     return false;
 
-  unsigned int maxElem = *max_element(dataVec.begin(), dataVec.end());
+  unsigned int maxElem = *std::max_element(dataVec.begin(), dataVec.end());
   int numBits = 0;
   while ((numBits < 32) && (maxElem >> numBits))
     numBits++;
@@ -49,8 +48,8 @@ bool BitStuffer2::EncodeSimple(Byte** ppByte, const vector<unsigned int>& dataVe
   unsigned int numUInts = (numElements * numBits + 31) / 32;
 
   // use the upper 2 bits to encode the type used for numElements: Byte, ushort, or uint
-  int nb = NumBytesUInt(numElements);
-  int bits67 = (nb == 4) ? 0 : 3 - nb;
+  int n = NumBytesUInt(numElements);
+  int bits67 = (n == 4) ? 0 : 3 - n;
   numBitsByte |= bits67 << 6;
 
   // bit5 = 0 means simple mode
@@ -58,7 +57,7 @@ bool BitStuffer2::EncodeSimple(Byte** ppByte, const vector<unsigned int>& dataVe
   **ppByte = numBitsByte;
   (*ppByte)++;
 
-  if (!EncodeUInt(ppByte, numElements, nb))
+  if (!EncodeUInt(ppByte, numElements, n))
     return false;
 
   if (numUInts > 0)    // numBits can be 0, then we only write the header
@@ -69,7 +68,7 @@ bool BitStuffer2::EncodeSimple(Byte** ppByte, const vector<unsigned int>& dataVe
 
 // -------------------------------------------------------------------------- ;
 
-bool BitStuffer2::EncodeLut(Byte** ppByte, const vector<pair<unsigned int, unsigned int> >& sortedDataVec) const
+bool BitStuffer2::EncodeLut(Byte** ppByte, const std::vector<std::pair<unsigned int, unsigned int> >& sortedDataVec) const
 {
   if (!ppByte || sortedDataVec.empty())
     return false;
@@ -81,7 +80,7 @@ bool BitStuffer2::EncodeLut(Byte** ppByte, const vector<pair<unsigned int, unsig
   unsigned int numElem = (unsigned int)sortedDataVec.size();
   unsigned int indexLut = 0;
 
-  m_tmpLutVec.resize(0);    // omit the 0 throughout that corresponds to min
+  m_tmpLutVec.clear();    // omit the 0 throughout that corresponds to min
   m_tmpIndexVec.resize(numElem);
   memset(&m_tmpIndexVec[0], 0, numElem * sizeof(unsigned int));
 
@@ -144,7 +143,7 @@ bool BitStuffer2::EncodeLut(Byte** ppByte, const vector<pair<unsigned int, unsig
 
 // if you change Encode(...) / Decode(...), don't forget to update ComputeNumBytesNeeded(...)
 
-bool BitStuffer2::Decode(const Byte** ppByte, vector<unsigned int>& dataVec, int lerc2Version) const
+bool BitStuffer2::Decode(const Byte** ppByte, std::vector<unsigned int>& dataVec, int lerc2Version) const
 {
   if (!ppByte)
     return false;
@@ -153,15 +152,16 @@ bool BitStuffer2::Decode(const Byte** ppByte, vector<unsigned int>& dataVec, int
   (*ppByte)++;
 
   int bits67 = numBitsByte >> 6;
-  int nb = (bits67 == 0) ? 4 : 3 - bits67;
+  int n = (bits67 == 0) ? 4 : 3 - bits67;
 
   bool doLut = (numBitsByte & (1 << 5)) ? true : false;    // bit 5
   numBitsByte &= 31;    // bits 0-4;
-  int numBits = numBitsByte;
 
   unsigned int numElements = 0;
-  if (!DecodeUInt(ppByte, numElements, nb))
+  if (!DecodeUInt(ppByte, numElements, n))
     return false;
+
+  int numBits = numBitsByte;
 
   if (!doLut)
   {
@@ -185,21 +185,19 @@ bool BitStuffer2::Decode(const Byte** ppByte, vector<unsigned int>& dataVec, int
 
     int nLut = nLutByte - 1;
 
-    // unstuff lut w/o the 0
     if (lerc2Version >= 3)
-      BitUnStuff(ppByte, m_tmpLutVec, nLut, numBits);
+      BitUnStuff(ppByte, m_tmpLutVec, nLut, numBits);    // unstuff lut w/o the 0
     else
-      BitUnStuff_Before_Lerc2v3(ppByte, m_tmpLutVec, nLut, numBits);
+      BitUnStuff_Before_Lerc2v3(ppByte, m_tmpLutVec, nLut, numBits);    // unstuff lut w/o the 0
 
     int nBitsLut = 0;
     while (nLut >> nBitsLut)
       nBitsLut++;
 
-    // unstuff indexes
     if (lerc2Version >= 3)
-      BitUnStuff(ppByte, dataVec, numElements, nBitsLut);
+      BitUnStuff(ppByte, dataVec, numElements, nBitsLut);    // unstuff indexes
     else
-      BitUnStuff_Before_Lerc2v3(ppByte, dataVec, numElements, nBitsLut);
+      BitUnStuff_Before_Lerc2v3(ppByte, dataVec, numElements, nBitsLut);    // unstuff indexes
 
     // replace indexes by values
     m_tmpLutVec.insert(m_tmpLutVec.begin(), 0);    // put back in the 0
@@ -212,7 +210,8 @@ bool BitStuffer2::Decode(const Byte** ppByte, vector<unsigned int>& dataVec, int
 
 // -------------------------------------------------------------------------- ;
 
-unsigned int BitStuffer2::ComputeNumBytesNeededLut(const vector<pair<unsigned int, unsigned int> >& sortedDataVec, bool& doLut)
+unsigned int BitStuffer2::ComputeNumBytesNeededLut(const std::vector<std::pair<unsigned int, unsigned int> >& sortedDataVec,
+                                                    bool& doLut) const
 {
   unsigned int maxElem = sortedDataVec.back().first;
   unsigned int numElem = (unsigned int)sortedDataVec.size();
@@ -236,13 +235,13 @@ unsigned int BitStuffer2::ComputeNumBytesNeededLut(const vector<pair<unsigned in
   unsigned int numBytesLut = 1 + NumBytesUInt(numElem) + 1 + ((numBitsTotalLut + 7) >> 3) + ((numElem * nBitsLut + 7) >> 3);
 
   doLut = numBytesLut < numBytes;
-  return min(numBytesLut, numBytes);
+  return std::min(numBytesLut, numBytes);
 }
 
 // -------------------------------------------------------------------------- ;
 // -------------------------------------------------------------------------- ;
 
-void BitStuffer2::BitUnStuff_Before_Lerc2v3(const Byte** ppByte, vector<unsigned int>& dataVec,
+void BitStuffer2::BitUnStuff_Before_Lerc2v3(const Byte** ppByte, std::vector<unsigned int>& dataVec,
                              unsigned int numElements, int numBits) const
 {
   dataVec.resize(numElements, 0);    // init with 0
@@ -279,9 +278,7 @@ void BitStuffer2::BitUnStuff_Before_Lerc2v3(const Byte** ppByte, vector<unsigned
     {
       unsigned int val;
       memcpy(&val, srcPtr, sizeof(unsigned int));
-      unsigned int n = val << bitPos;
-
-      *dstPtr++ = n >> (32 - numBits);
+      *dstPtr++ = (val << bitPos) >> (32 - numBits);
       bitPos += numBits;
       if (bitPos == 32)    // shift >= 32 is undefined
       {
@@ -294,8 +291,7 @@ void BitStuffer2::BitUnStuff_Before_Lerc2v3(const Byte** ppByte, vector<unsigned
       unsigned int val;
       memcpy(&val, srcPtr, sizeof(unsigned int));
       srcPtr++;
-      unsigned int n = val << bitPos;
-      *dstPtr = n >> (32 - numBits);
+      *dstPtr = (val << bitPos) >> (32 - numBits);
       bitPos -= (32 - numBits);
       memcpy(&val, srcPtr, sizeof(unsigned int));
       *dstPtr++ |= val >> (32 - bitPos);
@@ -312,7 +308,7 @@ void BitStuffer2::BitUnStuff_Before_Lerc2v3(const Byte** ppByte, vector<unsigned
 
 // starting with version Lerc2v3: integer >> into local uint buffer, plus final memcpy
 
-void BitStuffer2::BitStuff(Byte** ppByte, const vector<unsigned int>& dataVec, int numBits) const
+void BitStuffer2::BitStuff(Byte** ppByte, const std::vector<unsigned int>& dataVec, int numBits) const
 {
   unsigned int numElements = (unsigned int)dataVec.size();
   unsigned int numUInts = (numElements * numBits + 31) / 32;
@@ -356,7 +352,7 @@ void BitStuffer2::BitStuff(Byte** ppByte, const vector<unsigned int>& dataVec, i
 
 // -------------------------------------------------------------------------- ;
 
-void BitStuffer2::BitUnStuff(const Byte** ppByte, vector<unsigned int>& dataVec,
+void BitStuffer2::BitUnStuff(const Byte** ppByte, std::vector<unsigned int>& dataVec,
   unsigned int numElements, int numBits) const
 {
   dataVec.resize(numElements);

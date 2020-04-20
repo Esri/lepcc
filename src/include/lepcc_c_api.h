@@ -28,18 +28,6 @@ Contributors:  Ronald Poirrier, Thomas Maurer
 #define LEPCC_EXPORT
 #endif
 
-
-// all version info in one place;
-// increment this if any of the module versions increments:
-#define VERSION_LEPCC 1
-
-// LEPCC module versions:
-#define VERSION_LEPCC_XYZ 1
-#define VERSION_LEPCC_RGB 1
-#define VERSION_LEPCC_INTENSITY 1
-#define VERSION_LEPCC_FLAGBYTES 1
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -99,7 +87,7 @@ extern "C" {
 
   //! get the number of xyz coordinates available in the encoded buffer
   LEPCC_EXPORT lepcc_status lepcc_getPointCount(lepcc_ContextHdl ctx, const unsigned char* packed, int bufferSize, unsigned int* countOut);
-
+    
   //! get the number of RGB values available in the encoded buffer
   LEPCC_EXPORT lepcc_status lepcc_getRGBCount(lepcc_ContextHdl ctx, const unsigned char* packed, int bufferSize, unsigned int* countOut);
 

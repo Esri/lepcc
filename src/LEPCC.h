@@ -24,8 +24,9 @@ Contributors:  Thomas Maurer
 #ifndef LEPCC_H
 #define LEPCC_H
 
-#include <vector>
 #include "lepcc_types.h"
+#include <vector>
+#include <string>
 
 namespace lepcc
 {
@@ -108,7 +109,7 @@ namespace lepcc
 
       TopHeader() : version(1), checkSum(0)
       {
-        std::string fk = "LEPCC     ";
+        std::string fk("LEPCC     ");
         memcpy(&fileKey[0], fk.c_str(), fk.length());
       }
 

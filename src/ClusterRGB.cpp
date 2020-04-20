@@ -45,7 +45,7 @@ ErrCode ClusterRGB::ComputeNumBytesNeededToEncode(uint32 nPts, const RGB_t* colo
   m_trueColorMask.SetAllInvalid();
 
   // if few enough colors for lossless coding, collect them here
-  vector<int> losslessColors;
+  std::vector<int> losslessColors;
 
   // init level 6 rgb histogram, for median cut method
   const int numColorSteps = 1 << 6;
@@ -56,7 +56,7 @@ ErrCode ClusterRGB::ComputeNumBytesNeededToEncode(uint32 nPts, const RGB_t* colo
   memset(&m_level6Histo[0], 0, numCubes6 * sizeof(int));
 
   const_array<RGB_t> rgbArr(colors, nPts);    // safe wrapper
-  vector<Box> boxVec;
+  std::vector<Box> boxVec;
 
   // first pass:  count orig colors, compute rgb histograms, init bounding box
   {
@@ -155,7 +155,6 @@ ErrCode ClusterRGB::ComputeNumBytesNeededToEncode(uint32 nPts, const RGB_t* colo
       }
     }
 
-    m_colorIndexLUT.resize(0);
     m_colorIndexLUT.assign(numCubes6, -1);    // 1 MB
 
     int size = (int)boxVec.size();
@@ -178,8 +177,8 @@ ErrCode ClusterRGB::ComputeNumBytesNeededToEncode(uint32 nPts, const RGB_t* colo
   // compute the palette colors as the means over their median cut boxes
   int numColors = (int)m_colorMap.size();
 
-  vector<Point3D> clusterCenters(numColors);
-  vector<int> counts(numColors, 0);
+  std::vector<Point3D> clusterCenters(numColors);
+  std::vector<int> counts(numColors, 0);
 
   memset(&clusterCenters[0], 0, numColors * sizeof(Point3D));
 
@@ -509,7 +508,7 @@ int ClusterRGB::HeaderSize()
 
 // -------------------------------------------------------------------------- ;
 
-void ClusterRGB::GenerateColormapLossless(const vector<int>& losslessColors)
+void ClusterRGB::GenerateColormapLossless(const std::vector<int>& losslessColors)
 {
   int numColors = (int)losslessColors.size();
   //assert(numColors <= m_maxNumColors);
@@ -530,7 +529,7 @@ void ClusterRGB::GenerateColormapLossless(const vector<int>& losslessColors)
 
 // -------------------------------------------------------------------------- ;
 
-int ClusterRGB::FindNextBox(const vector<Box>& boxVec, enum FindNextBoxMethod method) const
+int ClusterRGB::FindNextBox(const std::vector<Box>& boxVec, enum FindNextBoxMethod method) const
 {
   double maxPixVol = -1;
   int index = -1;
@@ -553,13 +552,12 @@ int ClusterRGB::FindNextBox(const vector<Box>& boxVec, enum FindNextBoxMethod me
 
 // -------------------------------------------------------------------------- ;
 
-void ClusterRGB::ProjectHistogram(const vector<int>& histogram,
+void ClusterRGB::ProjectHistogram(const std::vector<int>& histogram,
                                          int numColorSteps,
                                          const Box& box,
                                          enum ColorAxis axis,
-                                         vector<int>& oneAxisHistogram) const
+                                         std::vector<int>& oneAxisHistogram) const
 {
-  oneAxisHistogram.resize(0);
   oneAxisHistogram.assign(numColorSteps, 0);
 
   if (axis == RED)
@@ -618,10 +616,10 @@ void ClusterRGB::ProjectHistogram(const vector<int>& histogram,
 //  Split at median point. Shrink both new boxes to fit points and return.
 
 void ClusterRGB::SplitBox(const Box& box0, Box& box1, Box& box2,
-                                 const vector<int>& histogram,
+                                 const std::vector<int>& histogram,
                                  int numColorSteps) const
 {
-  vector<int> oneAxisHisto;
+  std::vector<int> oneAxisHisto;
 
   int dr = box0.rMax - box0.rMin;
   int dg = box0.gMax - box0.gMin;
@@ -696,9 +694,9 @@ void ClusterRGB::SplitBox(const Box& box0, Box& box1, Box& box2,
 
 // -------------------------------------------------------------------------- ;
 
-void ClusterRGB::ShrinkBox(Box& box, const vector<int>& histogram, int numColorSteps) const
+void ClusterRGB::ShrinkBox(Box& box, const std::vector<int>& histogram, int numColorSteps) const
 {
-  vector<int> oneAxisHisto;
+  std::vector<int> oneAxisHisto;
 
   if (box.rMax > box.rMin)
   {
@@ -726,7 +724,7 @@ void ClusterRGB::ShrinkBox(Box& box, const vector<int>& histogram, int numColorS
 
 // -------------------------------------------------------------------------- ;
 
-bool ClusterRGB::TurnColorsToIndexes(uint32 nPts, const RGB_t* colors, vector<Byte>& colorIndexVec) const
+bool ClusterRGB::TurnColorsToIndexes(uint32 nPts, const RGB_t* colors, std::vector<Byte>& colorIndexVec) const
 {
   if (!nPts || !colors)
     return false;
@@ -763,7 +761,7 @@ int64 ClusterRGB::ComputeNumBytesNeededToEncodeColorIndexes()
   if (numPoints == 0)
     return -1;
 
-  vector<int> histoVec;
+  std::vector<int> histoVec;
   int numNonZeroBins = 0;
   ComputeHistoOnColorIndexes(m_colorIndexVec, histoVec, numNonZeroBins);
 
@@ -788,8 +786,8 @@ int64 ClusterRGB::ComputeNumBytesNeededToEncodeColorIndexes()
 
 // -------------------------------------------------------------------------- ;
 
-void ClusterRGB::ComputeHistoOnColorIndexes(const vector<Byte>& colorIndexVec, 
-  vector<int>& histoVec, int& numNonZeroBins) const
+void ClusterRGB::ComputeHistoOnColorIndexes(const std::vector<Byte>& colorIndexVec, 
+  std::vector<int>& histoVec, int& numNonZeroBins) const
 {
   histoVec.resize(256);
   memset(&histoVec[0], 0, 256);

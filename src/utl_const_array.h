@@ -25,11 +25,6 @@ Contributors:  Ronald Poirrier
 #include <cassert>
 #include <type_traits>
 
-#ifndef _NOEXCEPT
-#define _NOEXCEPT	noexcept //c++ 11
-//#define _NOEXCEPT	throw ()
-#endif
-
 #define LEPCC_ASSERT assert
 
 namespace lepcc
@@ -41,14 +36,14 @@ namespace lepcc
   public:
     typedef const T* const_iterator;
     const_array(const T* data, size_t size) : m_data(data), m_size(size) {}
-    const T& operator[](size_t i) const _NOEXCEPT{ LEPCC_ASSERT(i >= 0 && i < m_size); return m_data[i]; }
-    const T* data() const _NOEXCEPT{ return m_data; }
-    size_t size() const  _NOEXCEPT{ return m_size; }
+    const T& operator[](size_t i) const noexcept{ LEPCC_ASSERT(i >= 0 && i < m_size); return m_data[i]; }
+    const T* data() const noexcept{ return m_data; }
+    size_t size() const  noexcept{ return m_size; }
 
-    const T&       front() const _NOEXCEPT{ return operator[](0); }
-    const T&       back() const  _NOEXCEPT{ return operator[](m_size - 1); }
-    const_iterator begin() const _NOEXCEPT{ return &front(); }
-    const_iterator end() const   _NOEXCEPT{ return &back() + 1; }
+    const T&       front() const noexcept{ return operator[](0); }
+    const T&       back() const  noexcept{ return operator[](m_size - 1); }
+    const_iterator begin() const noexcept{ return &front(); }
+    const_iterator end() const   noexcept{ return &back() + 1; }
 
   private:
     const T*  m_data;
