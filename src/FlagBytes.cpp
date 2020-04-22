@@ -23,6 +23,7 @@ Contributors:  Thomas Maurer
 
 #include <algorithm>
 #include <cstring>
+#include <climits>
 #include "FlagBytes.h"
 #include "BitStuffer2.h"
 #include "Common.h"
