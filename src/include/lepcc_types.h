@@ -38,7 +38,7 @@ namespace lepcc
   {
     Byte r, g, b;
 
-    RGB_t()  {}
+    RGB_t() : r(0), g(0), b(0)  {}
     RGB_t(Byte r0, Byte g0, Byte b0) : r(r0), g(g0), b(b0)  {}
 
     bool operator==(const RGB_t& v) const  { return r == v.r && g == v.g && b == v.b; }
@@ -48,7 +48,7 @@ namespace lepcc
   {
     double x, y, z;
 
-    Point3D()  {}
+    Point3D() : x(0), y(0), z(0)  {}
     Point3D(double a, double b, double c) : x(a), y(b), z(c)  {}
 
     Point3D operator-(const Point3D& b) const { return Point3D(x - b.x, y - b.y, z - b.z); }
