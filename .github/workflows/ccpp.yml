@@ -55,5 +55,5 @@ jobs:
         shell: bash -l {0}
         run: |
             cd build
-            lepcctest
+            ./lepcctest
 
