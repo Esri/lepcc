@@ -1,0 +1,59 @@
+on:
+  push:
+    branches:
+    - '*'
+  pull_request:
+    branches:
+    - '*'
+  release:
+    types:
+      - published
+
+jobs:
+
+  base:
+    name: Base library ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v3
+        name: Install Python
+        with:
+          python-version: '3.10'
+
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: matrix.os == 'windows-latest'
+
+      - name: Install CMake and Ninja
+        run: |
+            which python
+            python --version
+            pip install cmake ninja
+
+      - name: Configure
+        shell: bash -l {0}
+        run: |
+            if [ "$RUNNER_OS" == "Windows" ]; then
+              export CC=cl.exe
+              export CXX=cl.exe
+            fi
+            mkdir build
+            cd build
+            cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build
+        shell: bash -l {0}
+        run: |
+            cd build
+            ninja
+
+      - name: Test
+        shell: bash -l {0}
+        run: |
+            cd build
+            ./lepcctest
+
