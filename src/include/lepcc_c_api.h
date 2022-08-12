@@ -24,8 +24,26 @@ Contributors:  Ronald Poirrier, Thomas Maurer
 #ifndef LEPCC_API_INCLUDE_GUARD
 #define LEPCC_API_INCLUDE_GUARD
 
+//#define USE_EMSCRIPTEN    // to build a wasm Lepcc decoder, install emscripten first
+
+#ifdef USE_EMSCRIPTEN
+  #include <emscripten/emscripten.h>
+#endif
+
+#if defined _WINDOWS || defined __CYGWIN__
+#  if defined(LEPCC_STATIC)
+#    define LEPCC_EXPORT
+#  elif defined(LEPCC_EXPORTS)
+#    define LEPCC_EXPORT __declspec(dllexport)
+#  else
+#    define LEPCC_EXPORT __declspec(dllimport)
+#  endif
+#elif __GNUC__ >= 4
+  #define LEPCC_EXPORT __attribute__((visibility("default")))
+#endif
+
 #ifndef LEPCC_EXPORT
-#define LEPCC_EXPORT
+  #define LEPCC_EXPORT
 #endif
 
 
@@ -49,16 +67,24 @@ extern "C" {
   //!   - all output buffers must have been allocated by caller. 
   //!   - Input buffers do not need to outlive lepcc function call (lepcc will make internal copies if needed).
   
-
   typedef void* lepcc_ContextHdl;
   typedef unsigned int lepcc_status;
   typedef unsigned int lepcc_blobType;
 
   //! Create a context ( needed to call lepcc_computeCompressedSizeXXX() and encode/decode functions )
-  LEPCC_EXPORT lepcc_ContextHdl lepcc_createContext();
+  LEPCC_EXPORT
+#ifdef USE_EMSCRIPTEN
+    EMSCRIPTEN_KEEPALIVE
+#endif
+  lepcc_ContextHdl lepcc_createContext();
 
   //! Free the resource associated with the context. 
-  LEPCC_EXPORT void lepcc_deleteContext(lepcc_ContextHdl* ctx);
+  LEPCC_EXPORT
+#ifdef USE_EMSCRIPTEN
+    EMSCRIPTEN_KEEPALIVE
+#endif
+  void lepcc_deleteContext(lepcc_ContextHdl* ctx);
+
 
   //! Compute the size in bytes required to compress the input xyz coordinates. 
   //! maxXErr is the max compression error tolerated per point in x. Same for y and z. 
@@ -78,7 +104,6 @@ extern "C" {
   LEPCC_EXPORT lepcc_status lepcc_computeCompressedSizeFlagBytes(lepcc_ContextHdl ctx, unsigned int nValues, const unsigned char* valArray, unsigned int* nBytesOut);
 
 
-
   //! Encode xyz coordinates following a call to lepcc_computeCompressedSizeXYZ(). Output buffers must have been sized accordingly. 
   LEPCC_EXPORT lepcc_status lepcc_encodeXYZ(lepcc_ContextHdl ctx, unsigned char** ppByteOut, int bufferSizeOut);
 
@@ -93,35 +118,73 @@ extern "C" {
 
 
   //! Use the following to find out what type of blob is next in the compressed stream, and what size it is
-  LEPCC_EXPORT int lepcc_getBlobInfoSize();
-  LEPCC_EXPORT lepcc_status lepcc_getBlobInfo(lepcc_ContextHdl ctx, const unsigned char* packed, int bufferSize, lepcc_blobType* blobType, unsigned int* blobSize);
+  LEPCC_EXPORT
+#ifdef USE_EMSCRIPTEN
+    EMSCRIPTEN_KEEPALIVE
+#endif
+  int lepcc_getBlobInfoSize();
 
+  LEPCC_EXPORT
+#ifdef USE_EMSCRIPTEN
+    EMSCRIPTEN_KEEPALIVE
+#endif
+  lepcc_status lepcc_getBlobInfo(lepcc_ContextHdl ctx, const unsigned char* packed, int bufferSize, lepcc_blobType* blobType, unsigned int* blobSize);
 
   //! get the number of xyz coordinates available in the encoded buffer
-  LEPCC_EXPORT lepcc_status lepcc_getPointCount(lepcc_ContextHdl ctx, const unsigned char* packed, int bufferSize, unsigned int* countOut);
+  LEPCC_EXPORT
+#ifdef USE_EMSCRIPTEN
+    EMSCRIPTEN_KEEPALIVE
+#endif
+  lepcc_status lepcc_getPointCount(lepcc_ContextHdl ctx, const unsigned char* packed, int bufferSize, unsigned int* countOut);
 
   //! get the number of RGB values available in the encoded buffer
-  LEPCC_EXPORT lepcc_status lepcc_getRGBCount(lepcc_ContextHdl ctx, const unsigned char* packed, int bufferSize, unsigned int* countOut);
+  LEPCC_EXPORT
+#ifdef USE_EMSCRIPTEN
+    EMSCRIPTEN_KEEPALIVE
+#endif
+  lepcc_status lepcc_getRGBCount(lepcc_ContextHdl ctx, const unsigned char* packed, int bufferSize, unsigned int* countOut);
 
   //! get the number of intensity values available in the encoded buffer
-  LEPCC_EXPORT lepcc_status lepcc_getIntensityCount(lepcc_ContextHdl ctx, const unsigned char* packed, int bufferSize, unsigned int* countOut);
+  LEPCC_EXPORT
+#ifdef USE_EMSCRIPTEN
+    EMSCRIPTEN_KEEPALIVE
+#endif
+  lepcc_status lepcc_getIntensityCount(lepcc_ContextHdl ctx, const unsigned char* packed, int bufferSize, unsigned int* countOut);
 
   //! get the number of flag byte values available in the encoded buffer
-  LEPCC_EXPORT lepcc_status lepcc_getFlagByteCount(lepcc_ContextHdl ctx, const unsigned char* packed, int bufferSize, unsigned int* countOut);
-
-
+  LEPCC_EXPORT
+#ifdef USE_EMSCRIPTEN
+    EMSCRIPTEN_KEEPALIVE
+#endif
+  lepcc_status lepcc_getFlagByteCount(lepcc_ContextHdl ctx, const unsigned char* packed, int bufferSize, unsigned int* countOut);
 
   //! Decode the xyz coordinates. Output buffer must have the size returned by lepcc_getPointCount() * 3
-  LEPCC_EXPORT lepcc_status lepcc_decodeXYZ(lepcc_ContextHdl ctx, const unsigned char** ppByte, int bufferSize, unsigned int* nPtsInOut, double* xyzBuffOut);
+  LEPCC_EXPORT
+#ifdef USE_EMSCRIPTEN
+    EMSCRIPTEN_KEEPALIVE
+#endif
+  lepcc_status lepcc_decodeXYZ(lepcc_ContextHdl ctx, const unsigned char** ppByte, int bufferSize, unsigned int* nPtsInOut, double* xyzBuffOut);
 
   //! Decode the RGB colors. Output buffer must have the size returned by lepcc_getRGBCount() * 3
-  LEPCC_EXPORT lepcc_status lepcc_decodeRGB(lepcc_ContextHdl ctx, const unsigned char** ppByte, int bufferSize, unsigned int* nRGBInOut, unsigned char* rbgBuffOut);
+  LEPCC_EXPORT
+#ifdef USE_EMSCRIPTEN
+    EMSCRIPTEN_KEEPALIVE
+#endif
+  lepcc_status lepcc_decodeRGB(lepcc_ContextHdl ctx, const unsigned char** ppByte, int bufferSize, unsigned int* nRGBInOut, unsigned char* rbgBuffOut);
 
   //! Decode the intensities. output buffer must have the size returned by lepcc_getIntensityCount()
-  LEPCC_EXPORT lepcc_status lepcc_decodeIntensity(lepcc_ContextHdl ctx, const unsigned char** ppByte, int bufferSize, unsigned int* nValues, unsigned short* intensityBuffOut);
+  LEPCC_EXPORT
+#ifdef USE_EMSCRIPTEN
+    EMSCRIPTEN_KEEPALIVE
+#endif
+  lepcc_status lepcc_decodeIntensity(lepcc_ContextHdl ctx, const unsigned char** ppByte, int bufferSize, unsigned int* nValues, unsigned short* intensityBuffOut);
 
   //! Decode the flag bytes. output buffer must have the size returned by lepcc_getFlagByteCount()
-  LEPCC_EXPORT lepcc_status lepcc_decodeFlagBytes(lepcc_ContextHdl ctx, const unsigned char** ppByte, int bufferSize, unsigned int* nValues, unsigned char* flagBytesBuffOut);
+  LEPCC_EXPORT
+#ifdef USE_EMSCRIPTEN
+    EMSCRIPTEN_KEEPALIVE
+#endif
+  lepcc_status lepcc_decodeFlagBytes(lepcc_ContextHdl ctx, const unsigned char** ppByte, int bufferSize, unsigned int* nValues, unsigned char* flagBytesBuffOut);
 
 
 #ifdef __cplusplus

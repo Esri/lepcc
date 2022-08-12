@@ -23,7 +23,7 @@ Contributors:  Ronald Poirrier, Thomas Maurer
 
 #pragma once
 #include "lepcc_c_api.h"
-#include "lepcc_types.h"  // only for ErrCode 
+#include "lepcc_types.h"  // only for ErrCode
 
 
 namespace lepcc

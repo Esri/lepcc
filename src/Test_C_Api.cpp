@@ -26,13 +26,12 @@ Contributors:  Thomas Maurer
 
 #include <cstring>
 #include <cmath>
-#include <stdio.h>
 #include <iostream>
 #include <vector>
 #include <algorithm>
 #include <chrono>
-#include "lepcc_c_api.h"
-#include "lepcc_types.h"
+#include "include/lepcc_c_api.h"
+#include "include/lepcc_types.h"
 
 using namespace std;
 using namespace std::chrono;
@@ -45,7 +44,7 @@ int ReadBlobSize(lepcc_ContextHdl ctx, FILE* fp);
 int HasError(ErrCode errCode, const string& fctName)
 {
   if (errCode != ErrCode::Ok)
-    printf("Error in main(): %s failed. Error code = %d\n", fctName.c_str(), errCode);
+    printf("Error in main(): %s failed. Error code = %d\n", fctName.c_str(), (int)errCode);
   return (int)errCode;
 }
 
@@ -56,8 +55,8 @@ int main(int argc, char* argv[])
   {
     // open a small test binary slpk blob which has some LEPCC blobs embedded
 
-    string fnIn = "../testData/SMALL_AUTZEN_LAS_All.slpk";
-    string fnGT = "../testData/SMALL_AUTZEN_LAS_All.bin";    // decoded ground truth stored as raw binary arrays
+    string fnIn = "../../../../testData/SMALL_AUTZEN_LAS_All.slpk";
+    string fnGT = "../../../../testData/SMALL_AUTZEN_LAS_All.bin";    // decoded ground truth stored as raw binary arrays
     bool bWriteGT = false;    // toggle between write or read the ground truth
 
     FILE* fp = 0;
@@ -114,12 +113,12 @@ int main(int argc, char* argv[])
           case 0:
           {
             uint32 nPts = 0;
-            errCode = (ErrCode)lepcc_getPointCount(ctx, ptr, len - pos, &nPts);
+            errCode = (ErrCode)lepcc_getPointCount(ctx, ptr, (int)(len - pos), &nPts);
             if (HasError(errCode, "lepcc_getPointCount()"))
               return 0;
 
             vector<Point3D> ptVec(nPts);
-            errCode = (ErrCode)lepcc_decodeXYZ(ctx, &ptr, len - pos, &nPts, (double*)(&ptVec[0]));
+            errCode = (ErrCode)lepcc_decodeXYZ(ctx, &ptr, (int)(len - pos), &nPts, (double*)(&ptVec[0]));
             if (HasError(errCode, "lepcc_decodeXYZ()"))
               return 0;
 
@@ -166,12 +165,12 @@ int main(int argc, char* argv[])
           case 1:
           {
             uint32 nPts = 0;
-            errCode = (ErrCode)lepcc_getRGBCount(ctx, ptr, len - pos, &nPts);
+            errCode = (ErrCode)lepcc_getRGBCount(ctx, ptr, (int)(len - pos), &nPts);
             if (HasError(errCode, "lepcc_getRGBCount()"))
               return 0;
 
             vector<RGB_t> rgbVec(nPts);
-            errCode = (ErrCode)lepcc_decodeRGB(ctx, &ptr, len - pos, &nPts, (Byte*)(&rgbVec[0]));
+            errCode = (ErrCode)lepcc_decodeRGB(ctx, &ptr, (int)(len - pos), &nPts, (Byte*)(&rgbVec[0]));
             if (HasError(errCode, "lepcc_decodeRGB()"))
               return 0;
 
@@ -218,12 +217,12 @@ int main(int argc, char* argv[])
           case 2:
           {
             uint32 nPts = 0;
-            errCode = (ErrCode)lepcc_getIntensityCount(ctx, ptr, len - pos, &nPts);
+            errCode = (ErrCode)lepcc_getIntensityCount(ctx, ptr, (int)(len - pos), &nPts);
             if (HasError(errCode, "lepcc_getIntensityCount()"))
               return 0;
 
             vector<unsigned short> intensityVec(nPts);
-            errCode = (ErrCode)lepcc_decodeIntensity(ctx, &ptr, len - pos, &nPts, (unsigned short*)(&intensityVec[0]));
+            errCode = (ErrCode)lepcc_decodeIntensity(ctx, &ptr, (int)(len - pos), &nPts, (unsigned short*)(&intensityVec[0]));
             if (HasError(errCode, "lepcc_decodeIntensity()"))
               return 0;
 

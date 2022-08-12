@@ -22,7 +22,7 @@ Contributors:  Ronald Poirrier, Thomas Maurer
 */
 
 #include <string>
-#include "lepcc_c_api.h"
+#include "include/lepcc_c_api.h"
 #include "LEPCC.h"
 #include "ClusterRGB.h"
 #include "Intensity.h"
