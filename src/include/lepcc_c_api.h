@@ -43,12 +43,12 @@ Contributors:  Ronald Poirrier, Thomas Maurer
 #  elif __GNUC__ >= 4
 #    define LEPCC_EXPORT __attribute__((visibility("default")))
 #  endif
-
-#  ifndef LEPCC_EXPORT
-#    define LEPCC_EXPORT
-#  endif
 #endif
 */
+
+#ifndef LEPCC_EXPORT
+#  define LEPCC_EXPORT
+#endif
 
 // all version info in one place;
 // increment this if any of the module versions increments:
