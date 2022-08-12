@@ -30,6 +30,7 @@ Contributors:  Ronald Poirrier, Thomas Maurer
   #include <emscripten/emscripten.h>
 #endif
 
+/*
 #ifndef LEPCC_EXPORT
 #  if defined _WINDOWS || defined __CYGWIN__
 #    if defined(LEPCC_STATIC)
@@ -47,6 +48,7 @@ Contributors:  Ronald Poirrier, Thomas Maurer
 #    define LEPCC_EXPORT
 #  endif
 #endif
+*/
 
 // all version info in one place;
 // increment this if any of the module versions increments:
