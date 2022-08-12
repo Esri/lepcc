@@ -24,12 +24,10 @@ Contributors:  Thomas Maurer
 #ifndef LEPCC_H
 #define LEPCC_H
 
-#include "lepcc_types.h"
 #include <vector>
 #include <string>
 #include <cstring>
-
-#include "lepcc_types.h"
+#include "include/lepcc_types.h"
 
 namespace lepcc
 {
