@@ -30,22 +30,23 @@ Contributors:  Ronald Poirrier, Thomas Maurer
   #include <emscripten/emscripten.h>
 #endif
 
-#if defined _WINDOWS || defined __CYGWIN__
-#  if defined(LEPCC_STATIC)
-#    define LEPCC_EXPORT
-#  elif defined(LEPCC_EXPORTS)
-#    define LEPCC_EXPORT __declspec(dllexport)
-#  else
-#    define LEPCC_EXPORT __declspec(dllimport)
-#  endif
-#elif __GNUC__ >= 4
-  #define LEPCC_EXPORT __attribute__((visibility("default")))
-#endif
-
 #ifndef LEPCC_EXPORT
-  #define LEPCC_EXPORT
-#endif
+#  if defined _WINDOWS || defined __CYGWIN__
+#    if defined(LEPCC_STATIC)
+#      define LEPCC_EXPORT
+#    elif defined(LEPCC_EXPORTS)
+#      define LEPCC_EXPORT __declspec(dllexport)
+#    else
+#      define LEPCC_EXPORT __declspec(dllimport)
+#    endif
+#  elif __GNUC__ >= 4
+#    define LEPCC_EXPORT __attribute__((visibility("default")))
+#  endif
 
+#  ifndef LEPCC_EXPORT
+#    define LEPCC_EXPORT
+#  endif
+#endif
 
 // all version info in one place;
 // increment this if any of the module versions increments:
