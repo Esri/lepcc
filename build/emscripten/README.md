@@ -1,5 +1,4 @@
 # How to build with Emscripten in Linux (we used Ubuntu)
-[Emscripten](https://emscripten.org/)
 
 A quick guide how to
 * run the C++ Lepcc decoder in a web browser
@@ -7,7 +6,7 @@ A quick guide how to
 
 ## Run the Lepcc decoder in a webpage
 
-- install Emscripten
+- install [Emscripten](https://emscripten.org/)
 - open a terminal or cmd shell
 - in emsdk/
   - source ./emsdk_env.sh
@@ -15,13 +14,13 @@ A quick guide how to
   - emcc --clear-cache
   - emcmake cmake .
   - emmake make
-(should create the static lib liblepcc.a)
+  - (should have created liblepcc.a)
   - emcc liblepcc.a src/Test_C_Api.cpp -o lepcc.html --preload-file testData -s ALLOW_MEMORY_GROWTH=1
-(should create lepcc.html, among other files)
+  - (should have created lepcc.html)
   - python3 -m http.server 8000
 - open a web browser and go to http://localhost:8000
   - open lepcc.html
-(should run the Lepcc test program, say it decoded 106 points with 0 errors)
+  - (should run the Lepcc test program, say it decoded 106 points with 0 errors)
   - close the browser
   - in the terminal, use Ctrl-C to quit
 
@@ -30,5 +29,4 @@ A quick guide how to
 - in include/lepcc_c_api.h, uncomment #define USE_EMSCRIPTEN
 - follow the same steps as above till "emmake make", then
   - emcc liblepcc.a src/lepcc_c_api_impl.cpp -o lepcc-wasm.js -s MODULARIZE=1 -O3 -s ALLOW_MEMORY_GROWTH=1 -s EXPORTED_FUNCTIONS="['_malloc','_free']"
-(should create .js and .wasm files that expose the lepcc decode functions from the Lepcc C API callable from JS)
-
+  - (should create .js and .wasm files that expose the lepcc decode functions from the Lepcc C API callable from JS)
