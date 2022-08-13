@@ -35,8 +35,8 @@ Contributors:  Ronald Poirrier, Thomas Maurer
 #    define LEPCC_EXPORT
 #  elif defined(LEPCC_EXPORTS)
 #    define LEPCC_EXPORT __declspec(dllexport)
-#  else
-#    define LEPCC_EXPORT __declspec(dllimport)
+//#  else
+//#    define LEPCC_EXPORT __declspec(dllimport)
 #  endif
 #elif __GNUC__ >= 4
 #  define LEPCC_EXPORT __attribute__((visibility("default")))

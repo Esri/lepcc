@@ -20,10 +20,6 @@ list(REMOVE_ITEM BASE_SRCS ${TEST_SRCS})
 message(INFO "files ${BASE_SRCS}")
 add_library(lepcc "${BASE_SRCS}")
 
-set_target_properties(lepcc
-  PROPERTIES
-  DEFINE_SYMBOL LEPCC_STATIC)
-
 target_include_directories(
   lepcc
   PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>/src/include")
