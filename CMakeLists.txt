@@ -20,19 +20,13 @@ list(REMOVE_ITEM BASE_SRCS ${TEST_SRCS})
 message(INFO "files ${BASE_SRCS}")
 add_library(lepcc "${BASE_SRCS}")
 
+set_target_properties(lepcc
+  PROPERTIES
+  DEFINE_SYMBOL LEPCC_STATIC)
+
 target_include_directories(
   lepcc
   PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>/src/include")
-
-if(BUILD_SHARED_LIBS)
-    set_target_properties(lepcc
-        PROPERTIES
-        DEFINE_SYMBOL LEPCC_EXPORTS)
-else()
-    set_target_properties(lepcc
-        PROPERTIES
-        COMPILE_DEFINITIONS LEPCC_STATIC)
-endif()
 
 add_executable(lepcctest ${TEST_SRCS})
 target_link_libraries(lepcctest lepcc)
